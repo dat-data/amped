@@ -1,0 +1,26 @@
+{
+  "name": "amped",
+  "version": "0.0.0",
+  "description": "amped bot to help with game server management",
+  "main": "./dist/bot.js",
+  "type": "module",
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "start": "tsx ./src/main.ts",
+    "build": "node esbuild.config.js"
+  },
+  "author": "dat data",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5",
+    "got": "^14.2.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.2",
+    "tsx": "^4.7.3",
+    "typescript": "~5.3.2"
+  }
+}
