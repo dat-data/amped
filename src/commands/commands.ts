@@ -3,13 +3,15 @@ import {
   ChatInputApplicationCommandData,
   AutocompleteInteraction,
 } from "discord.js";
-import { serverList } from "./server.list";
+import { serverList } from "./server.list.js";
 // import { startServer } from "./start.server";
 // import { restartServer } from "./restart.server";
 // import { stopServer } from "./stop.server";
 // import { updateServer } from "./update.server";
 // import { backupServer } from "./backup.server";
-import { Bot } from "src/types/bot";
+import { Bot } from "src/types/bot.js";
+import { serverInfo } from "./server.info.js";
+import { serverSettings } from "./server.settings.js";
 
 export interface Command extends ChatInputApplicationCommandData {
   ephemeral: boolean;
@@ -23,6 +25,8 @@ export interface Command extends ChatInputApplicationCommandData {
 export const ApplicationCommands: Command[] = [
   // User commands
   serverList,
+  serverInfo,
+  serverSettings,
   // startServer,
   // game server info
   // Admin only commands

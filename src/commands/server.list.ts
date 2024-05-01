@@ -29,7 +29,9 @@ export const serverList: Command = {
 
     const instances = await client.services.ampService?.getInstances();
     if (instances) {
-      for (const instance of instances) {
+      for (const instance of instances.sort((a, b) =>
+        a.FriendlyName.localeCompare(b.FriendlyName)
+      )) {
         const status = instance.AppState;
         const icon = getStatusIcon(status);
         let statusValue = AppState[status];
@@ -37,7 +39,7 @@ export const serverList: Command = {
 
         embed.fields?.push({
           name: instance.FriendlyName,
-          value: `Status: ${statusValue}`,
+          value: `Status: ${statusValue}\nActive Users: ${instance.Metrics["Active Users"].RawValue}/${instance.Metrics["Active Users"].MaxValue}\nCPU: ${instance.Metrics["CPU Usage"].Percent}%\nMemory: ${instance.Metrics["Memory Usage"].Percent}%`,
           inline: false,
         });
       }
