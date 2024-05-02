@@ -54,8 +54,12 @@ export const serverInfo: Command = {
     const instanceId = interaction.options.data[0].value as string;
 
     const instance = await client.services.ampService?.getInstance(instanceId);
-    const serverSettings =
-      await client.services.ampService?.getInstanceSettings(instanceId);
+    const serverSettings = await client.services.ampService?.getServerSettings(
+      instanceId
+    );
+    const serverUpdate = await client.services.ampService?.getServerUpdate(
+      instanceId
+    );
 
     if (instance && serverSettings) {
       // Handle settings
@@ -67,6 +71,10 @@ export const serverInfo: Command = {
       const serverName = connectionRef?.find(
         (s: any) => s.Name === ref.Connection.ServerName
       )?.CurrentValue;
+      const serverDescription = connectionRef?.find(
+        (s: any) => s.Name === ref.Connection.ServerDescription
+      )?.CurrentValue;
+      const uptime = serverUpdate?.Status.Uptime ?? "00:00";
 
       // Build embed
       const embed: APIEmbed = {
@@ -84,44 +92,58 @@ export const serverInfo: Command = {
       );
       let ip = endpoint?.Endpoint.replace("0.0.0.0", process.env.AMP_BASEURL!);
 
-      embed.fields?.push(
-        {
-          name: `Server Name`,
-          value: `${serverName}`,
+      embed.fields?.push({
+        name: `Server Name`,
+        value: `${serverName}`,
+        inline: false,
+      });
+
+      if (serverDescription) {
+        embed.fields?.push({
+          name: `Server Description`,
+          value: `${serverDescription}`,
           inline: false,
-        },
-        {
-          name: `** **`,
-          value: ``,
-        },
+        });
+      }
+
+      embed.fields?.push(
+        // {
+        //   name: `** **`,
+        //   value: ``,
+        // },
         {
           name: `Status`,
           value: `${statusValue}`,
-          inline: true,
+          inline: false,
+        },
+        {
+          name: `Uptime`,
+          value: `${uptime}`,
+          inline: false,
         },
         {
           name: `Active Users`,
           value: `${instance.Metrics["Active Users"].RawValue}/${instance.Metrics["Active Users"].MaxValue}`,
-          inline: true,
+          inline: false,
         },
-        {
-          name: `** **`,
-          value: ``,
-        },
+        // {
+        //   name: `** **`,
+        //   value: ``,
+        // },
         {
           name: `CPU`,
           value: `${instance.Metrics["CPU Usage"].Percent}%`,
-          inline: true,
+          inline: false,
         },
         {
           name: `Memory`,
           value: `${instance.Metrics["Memory Usage"].Percent}%`,
-          inline: true,
+          inline: false,
         },
-        {
-          name: `** **`,
-          value: ``,
-        },
+        // {
+        //   name: `** **`,
+        //   value: ``,
+        // },
         {
           name: `IP`,
           value: `\`\`\`${ip}\`\`\``,

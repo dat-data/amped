@@ -1,5 +1,5 @@
 import { got } from "got";
-import { Instance } from "src/types/instance.js";
+import { Instance, ServerUpdate } from "src/types/instance.js";
 
 export class AmpService {
   private baseUrl: string;
@@ -27,11 +27,10 @@ export class AmpService {
     return res.sessionID;
   }
 
-  // This method uses a shortened instanceId
-  private async getInstanceSession(instanceId: string): Promise<string> {
+  private async getServerSession(serverId: string): Promise<string> {
     const res: any = await got
       .post(
-        `${this.baseUrl}/API/ADSModule/Servers/${instanceId}/API/Core/Login`,
+        `${this.baseUrl}/API/ADSModule/Servers/${serverId}/API/Core/Login`,
         {
           method: "POST",
           headers: {
@@ -85,12 +84,32 @@ export class AmpService {
     return res;
   }
 
-  async getInstanceSettings(instanceId: string): Promise<any> {
-    const shortId = this.getInstanceShortId(instanceId);
-    const sessionId = await this.getInstanceSession(shortId);
+  async getServerSettings(instanceId: string): Promise<any> {
+    const serverId = this.getServerId(instanceId);
+    const sessionId = await this.getServerSession(serverId);
     const res: any = await got
       .post(
-        `${this.baseUrl}/API/ADSModule/Servers/${shortId}/API/Core/GetSettingsSpec`,
+        `${this.baseUrl}/API/ADSModule/Servers/${serverId}/API/Core/GetSettingsSpec`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+          json: {
+            SESSIONID: sessionId,
+          },
+        }
+      )
+      .json();
+
+    return res;
+  }
+
+  async getServerUpdate(instanceId: string): Promise<ServerUpdate> {
+    const serverId = this.getServerId(instanceId);
+    const sessionId = await this.getServerSession(serverId);
+    const res: any = await got
+      .post(
+        `${this.baseUrl}/API/ADSModule/Servers/${serverId}/API/Core/GetUpdates`,
         {
           headers: {
             Accept: "application/json",
@@ -107,7 +126,7 @@ export class AmpService {
 
   async startInstance(instanceId: string): Promise<void> {}
 
-  private getInstanceShortId(instanceId: string): string {
+  private getServerId(instanceId: string): string {
     return instanceId.split("-")[0];
   }
 }

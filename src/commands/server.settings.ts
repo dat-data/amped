@@ -3,13 +3,11 @@ import {
   CommandInteraction,
   GuildMember,
   TextChannel,
-  APIEmbed,
-  Colors,
   AutocompleteInteraction,
   ApplicationCommandOptionType,
 } from "discord.js";
 import { Command } from "./commands.js";
-import { AppState, SettingsReference } from "../types/instance.js";
+import { SettingsReference } from "../types/instance.js";
 import { getStatusIcon } from "../util/status.js";
 import { Bot } from "src/types/bot.js";
 
@@ -54,8 +52,9 @@ export const serverSettings: Command = {
     const instanceId = interaction.options.data[0].value as string;
 
     const instance = await client.services.ampService?.getInstance(instanceId);
-    const serverSettings =
-      await client.services.ampService?.getInstanceSettings(instanceId);
+    const serverSettings = await client.services.ampService?.getServerSettings(
+      instanceId
+    );
 
     await interaction.followUp({
       content: `Settings dump for ${instance?.FriendlyName} incoming...`,
@@ -63,19 +62,21 @@ export const serverSettings: Command = {
     if (instance && serverSettings) {
       // Handle settings
       const ref = SettingsReference[instance.ModuleDisplayName];
-      for (const setting of ref.Settings) {
-        const settingRef = serverSettings[setting];
-        let content = "";
-        if (settingRef) {
-          content += `diff\n!${setting}\n`;
-          for (const s of settingRef) {
-            content += `${s.Name}: ${s.CurrentValue}\n`;
-            // content += `Description: ${s.Description}\n\n`;
+      if (ref.Settings) {
+        for (const setting of ref.Settings) {
+          const settingRef = serverSettings[setting];
+          let content = "";
+          if (settingRef) {
+            content += `diff\n!${setting}\n`;
+            for (const s of settingRef) {
+              content += `${s.Name}: ${s.CurrentValue}\n`;
+              // content += `Description: ${s.Description}\n\n`;
+            }
           }
+          interaction.channel?.send({
+            content: `\`\`\`${content}\`\`\``,
+          });
         }
-        interaction.channel?.send({
-          content: `\`\`\`${content}\`\`\``,
-        });
       }
     }
 

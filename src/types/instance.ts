@@ -65,6 +65,15 @@ export const SettingsReference: Record<string, ServerSettings> = {
     Connection: {
       Settings: "Palworld Server Settings",
       ServerName: "Server Name",
+      ServerDescription: "Server Description",
+      Password: "Server Password",
+    },
+  },
+  Enshrouded: {
+    Connection: {
+      Settings: "Enshrouded Server Settings",
+      ServerName: "Server Name",
+      ServerDescription: "Server Description",
       Password: "Server Password",
     },
   },
@@ -72,11 +81,20 @@ export const SettingsReference: Record<string, ServerSettings> = {
 
 interface ServerSettings {
   // Array of settings to pull data from
-  Settings: string[];
+  Settings?: string[];
   // Settings to pull connection data from (should not be listed in Settings array)
   Connection: {
     Settings: string;
     ServerName: string;
+    ServerDescription: string;
     Password: string;
+  };
+}
+
+export interface ServerUpdate {
+  Status: {
+    State: AppState;
+    Uptime: string;
+    Metrics: Metrics;
   };
 }
