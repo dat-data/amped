@@ -77,16 +77,24 @@ export const SettingsReference: Record<string, ServerSettings> = {
       Password: "Server Password",
     },
   },
+  "Sons Of The Forest": {
+    Settings: ["SotF - Game Settings"],
+    Connection: {
+      Settings: "SotF - Server Settings",
+      ServerName: "Server Name",
+      Password: "Password",
+    },
+  },
 };
 
 interface ServerSettings {
   // Array of settings to pull data from
   Settings?: string[];
   // Settings to pull connection data from (should not be listed in Settings array)
-  Connection: {
+  Connection?: {
     Settings: string;
     ServerName: string;
-    ServerDescription: string;
+    ServerDescription?: string;
     Password: string;
   };
 }

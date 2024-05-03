@@ -4,9 +4,9 @@ import {
   AutocompleteInteraction,
 } from "discord.js";
 import { serverList } from "./server.list.js";
-// import { startServer } from "./start.server";
+import { startServer } from "./start.server.js";
 // import { restartServer } from "./restart.server";
-// import { stopServer } from "./stop.server";
+import { stopServer } from "./stop.server.js";
 // import { updateServer } from "./update.server";
 // import { backupServer } from "./backup.server";
 import { Bot } from "src/types/bot.js";
@@ -27,11 +27,10 @@ export const ApplicationCommands: Command[] = [
   serverList,
   serverInfo,
   serverSettings,
-  // startServer,
-  // game server info
+  startServer,
   // Admin only commands
   // restartServer,
-  // stopServer,
+  stopServer,
   // updateServer,
   // backupServer,
 ];

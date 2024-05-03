@@ -63,17 +63,25 @@ export const serverInfo: Command = {
 
     if (instance && serverSettings) {
       // Handle settings
+      let connectionRef;
+      let serverName;
+      let serverDescription;
+      let password;
+
       const ref = SettingsReference[instance.ModuleDisplayName];
-      const connectionRef = serverSettings[ref.Connection.Settings];
-      const password = connectionRef?.find(
-        (s: any) => s.Name === ref.Connection.Password
-      )?.CurrentValue;
-      const serverName = connectionRef?.find(
-        (s: any) => s.Name === ref.Connection.ServerName
-      )?.CurrentValue;
-      const serverDescription = connectionRef?.find(
-        (s: any) => s.Name === ref.Connection.ServerDescription
-      )?.CurrentValue;
+      if (ref && ref.Connection) {
+        connectionRef = serverSettings[ref.Connection.Settings];
+        password = connectionRef?.find(
+          (s: any) => s.Name === ref.Connection!.Password
+        )?.CurrentValue;
+        serverName = connectionRef?.find(
+          (s: any) => s.Name === ref.Connection!.ServerName
+        )?.CurrentValue;
+        serverDescription = connectionRef?.find(
+          (s: any) => s.Name === ref.Connection!.ServerDescription
+        )?.CurrentValue;
+      }
+
       const uptime = serverUpdate?.Status.Uptime ?? "00:00";
 
       // Build embed
@@ -92,11 +100,13 @@ export const serverInfo: Command = {
       );
       let ip = endpoint?.Endpoint.replace("0.0.0.0", process.env.AMP_BASEURL!);
 
-      embed.fields?.push({
-        name: `Server Name`,
-        value: `${serverName}`,
-        inline: false,
-      });
+      if (serverName) {
+        embed.fields?.push({
+          name: `Server Name`,
+          value: `${serverName}`,
+          inline: false,
+        });
+      }
 
       if (serverDescription) {
         embed.fields?.push({

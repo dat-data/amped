@@ -62,7 +62,7 @@ export const serverSettings: Command = {
     if (instance && serverSettings) {
       // Handle settings
       const ref = SettingsReference[instance.ModuleDisplayName];
-      if (ref.Settings) {
+      if (ref && ref.Settings) {
         for (const setting of ref.Settings) {
           const settingRef = serverSettings[setting];
           let content = "";
@@ -77,6 +77,10 @@ export const serverSettings: Command = {
             content: `\`\`\`${content}\`\`\``,
           });
         }
+      } else {
+        interaction.channel?.send({
+          content: `\`\`\`Settings were not found or are unavailable for this server.\`\`\``,
+        });
       }
     }
 

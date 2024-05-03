@@ -124,7 +124,59 @@ export class AmpService {
     return res;
   }
 
-  async startInstance(instanceId: string): Promise<void> {}
+  async startInstance(instanceName: string): Promise<void> {
+    const sessionId = await this.getSession();
+    const res: any = await got
+      .post(`${this.baseUrl}/API/ADSModule/StartInstance`, {
+        headers: {
+          Accept: "application/json",
+        },
+        json: {
+          SESSIONID: sessionId,
+          InstanceName: instanceName,
+        },
+      })
+      .json();
+
+    return res;
+  }
+
+  async startServer(instanceId: string): Promise<any> {
+    const serverId = this.getServerId(instanceId);
+    const sessionId = await this.getServerSession(serverId);
+    const res: any = await got
+      .post(
+        `${this.baseUrl}/API/ADSModule/Servers/${serverId}/API/Core/Start`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+          json: {
+            SESSIONID: sessionId,
+          },
+        }
+      )
+      .json();
+
+    return res;
+  }
+
+  async stopServer(instanceId: string): Promise<any> {
+    const serverId = this.getServerId(instanceId);
+    const sessionId = await this.getServerSession(serverId);
+    const res: any = await got
+      .post(`${this.baseUrl}/API/ADSModule/Servers/${serverId}/API/Core/Stop`, {
+        headers: {
+          Accept: "application/json",
+        },
+        json: {
+          SESSIONID: sessionId,
+        },
+      })
+      .json();
+
+    return res;
+  }
 
   private getServerId(instanceId: string): string {
     return instanceId.split("-")[0];
