@@ -12,15 +12,15 @@ import { AppState } from "../types/instance";
 import { getStatusIcon } from "../util/status";
 import { Bot } from "../types/bot";
 
-export const stopServer: Command = {
-  name: "stop-server",
-  description: "Stop server from list",
+export const restartServer: Command = {
+  name: "restart-server",
+  description: "Restart server from list",
   type: ApplicationCommandType.ChatInput,
   options: [
     {
       name: "servers",
       type: ApplicationCommandOptionType.String,
-      description: "Select a server to stop",
+      description: "Select a server to restart",
       autocomplete: true,
       required: true,
     },
@@ -66,9 +66,13 @@ export const stopServer: Command = {
         `Bot command ${interaction.commandName}: used by ${member.displayName}, no instance ${instanceId} found`
       );
       return;
-    } else if (instance.AppState === AppState.Stopped) {
+    } else if (instance.AppState != AppState.Ready) {
       await interaction.followUp({
-        content: `Server **${instance.FriendlyName}** is already stopped?`,
+        content: `Server **${
+          instance.FriendlyName
+        }** needs to be in Ready state to restart, current state: ${
+          AppState[instance.AppState]
+        }`,
       });
       console.log(
         `Bot command ${interaction.commandName}: used by ${
@@ -78,30 +82,30 @@ export const stopServer: Command = {
       return;
     }
 
-    await client.services.ampService?.startInstance(instance.InstanceName);
+    await client.services.ampService?.restartServer(instance.InstanceID);
 
     await interaction.followUp({
-      content: `Requested to stop **${instance.FriendlyName}**, stopping soon...`,
+      content: `Requested to restart **${instance.FriendlyName}**, restarting soon...`,
     });
-
-    await client.services.ampService?.stopServer(instanceId);
 
     let serverAttempts = 0;
     while (
-      serverUpdate?.Status.State !== AppState.Stopped &&
+      serverUpdate?.Status.State !== AppState.Ready &&
       serverAttempts < 10
     ) {
-      console.log("Waiting for server to stop...");
+      console.log("Waiting for server to restart...");
       await new Promise((resolve) => setTimeout(resolve, 8000));
       serverUpdate = await client.services.ampService?.getServerUpdate(
         instanceId
       );
       serverAttempts++;
     }
-    if (serverUpdate?.Status.State == AppState.Stopped) {
+    if (serverUpdate?.Status.State == AppState.Ready) {
       const icon = getStatusIcon(serverUpdate.Status.State);
       await channel.send(
-        `**${instance!.FriendlyName}** stopped successfully, status: ${icon} ${
+        `**${
+          instance!.FriendlyName
+        }** restarted successfully, status: ${icon} ${
           AppState[serverUpdate.Status.State]
         }`
       );

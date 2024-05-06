@@ -1,11 +1,11 @@
-import { build } from "esbuild";
+const { build } = require("esbuild");
 
 build({
   entryPoints: ["./src/main.ts"],
   bundle: true,
-  outfile: "./dist/bot.js",
+  outfile: "dist/amped.js",
   platform: "node",
-  target: ["node18"],
+  target: ["node16"],
   sourcemap: "inline",
   minify: true,
   minifyWhitespace: true,

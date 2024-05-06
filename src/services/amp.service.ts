@@ -1,5 +1,5 @@
 import { got } from "got";
-import { Instance, ServerUpdate } from "src/types/instance.js";
+import { Instance, ServerUpdate } from "../types/instance";
 
 export class AmpService {
   private baseUrl: string;
@@ -173,6 +173,69 @@ export class AmpService {
           SESSIONID: sessionId,
         },
       })
+      .json();
+
+    return res;
+  }
+
+  async restartServer(instanceId: string): Promise<any> {
+    const serverId = this.getServerId(instanceId);
+    const sessionId = await this.getServerSession(serverId);
+    const res: any = await got
+      .post(
+        `${this.baseUrl}/API/ADSModule/Servers/${serverId}/API/Core/Restart`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+          json: {
+            SESSIONID: sessionId,
+          },
+        }
+      )
+      .json();
+
+    return res;
+  }
+
+  async updateServer(instanceId: string): Promise<any> {
+    const serverId = this.getServerId(instanceId);
+    const sessionId = await this.getServerSession(serverId);
+    const res: any = await got
+      .post(
+        `${this.baseUrl}/API/ADSModule/Servers/${serverId}/API/Core/UpdateApplication`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+          json: {
+            SESSIONID: sessionId,
+          },
+        }
+      )
+      .json();
+
+    return res;
+  }
+
+  async backupServer(instanceId: string): Promise<any> {
+    const serverId = this.getServerId(instanceId);
+    const sessionId = await this.getServerSession(serverId);
+    const res: any = await got
+      .post(
+        `${this.baseUrl}/API/ADSModule/Servers/${serverId}/API/LocalFileBackupPlugin/TakeBackup`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+          json: {
+            SESSIONID: sessionId,
+            Title: `Backup ${Math.floor(new Date().getTime() / 1000)}`,
+            Description: `Backup taken by Discord bot`,
+            Sticky: false,
+          },
+        }
+      )
       .json();
 
     return res;

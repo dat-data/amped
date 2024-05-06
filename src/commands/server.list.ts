@@ -6,10 +6,10 @@ import {
   APIEmbed,
   Colors,
 } from "discord.js";
-import { Command } from "./commands.js";
-import { AppState } from "../types/instance.js";
-import { getStatusIcon } from "../util/status.js";
-import { Bot } from "src/types/bot.js";
+import { Command } from "../commands/commands";
+import { AppState } from "../types/instance";
+import { getStatusIcon } from "../util/status";
+import { Bot } from "../types/bot";
 
 export const serverList: Command = {
   name: "server-list",
@@ -44,6 +44,11 @@ export const serverList: Command = {
         });
       }
 
+      embed.fields?.push({
+        name: `Last Updated`,
+        value: `<t:${Math.floor(new Date().getTime() / 1000)}:R>`,
+      });
+
       await interaction.followUp({
         embeds: [embed],
       });
@@ -51,6 +56,11 @@ export const serverList: Command = {
 
     console.log(
       `Bot command ${interaction.commandName}: used by ${member.displayName} in channel ${channel.name}`
+    );
+
+    await client.services.channelServerService?.updateChannelEmbeds(
+      client.channels.cache,
+      client.services.ampService!
     );
   },
 };

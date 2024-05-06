@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "NodeNext",
+    "module": "ES2015",
     "rootDirs": ["./"],
     "outDir": "./dist/",
     "strict": true,
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Bundler",
     "importHelpers": false,
     "experimentalDecorators": true,
     "esModuleInterop": true,

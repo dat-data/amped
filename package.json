@@ -2,8 +2,8 @@
   "name": "amped",
   "version": "0.0.0",
   "description": "amped bot to help with game server management",
-  "main": "./dist/bot.js",
-  "type": "module",
+  "main": "dist/amped.js",
+  "type": "commonjs",
   "engines": {
     "node": ">=16"
   },

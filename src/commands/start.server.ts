@@ -6,10 +6,10 @@ import {
   AutocompleteInteraction,
   ApplicationCommandOptionType,
 } from "discord.js";
-import { Command } from "./commands.js";
-import { AppState } from "../types/instance.js";
-import { getStatusIcon } from "../util/status.js";
-import { Bot } from "src/types/bot.js";
+import { Command } from "../commands/commands";
+import { AppState } from "../types/instance";
+import { getStatusIcon } from "../util/status";
+import { Bot } from "../types/bot";
 
 export const startServer: Command = {
   name: "start-server",
@@ -94,7 +94,10 @@ export const startServer: Command = {
     await client.services.ampService?.startServer(instanceId);
 
     let serverAttempts = 0;
-    while (serverUpdate?.Status.State !== AppState.Ready) {
+    while (
+      serverUpdate?.Status.State !== AppState.Ready &&
+      serverAttempts < 10
+    ) {
       console.log("Waiting for server to start...");
       await new Promise((resolve) => setTimeout(resolve, 8000));
       serverUpdate = await client.services.ampService?.getServerUpdate(
@@ -113,6 +116,11 @@ export const startServer: Command = {
 
     console.log(
       `Bot command ${interaction.commandName}: used by ${member.displayName} in channel ${channel.name}`
+    );
+
+    await client.services.channelServerService?.updateChannelEmbeds(
+      client.channels.cache,
+      client.services.ampService!
     );
   },
 };

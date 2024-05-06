@@ -3,15 +3,15 @@ import {
   ChatInputApplicationCommandData,
   AutocompleteInteraction,
 } from "discord.js";
-import { serverList } from "./server.list.js";
-import { startServer } from "./start.server.js";
-// import { restartServer } from "./restart.server";
-import { stopServer } from "./stop.server.js";
-// import { updateServer } from "./update.server";
-// import { backupServer } from "./backup.server";
-import { Bot } from "src/types/bot.js";
-import { serverInfo } from "./server.info.js";
-import { serverSettings } from "./server.settings.js";
+import { serverList } from "../commands/server.list";
+import { startServer } from "../commands/start.server";
+import { restartServer } from "../commands/restart.server";
+import { stopServer } from "../commands/stop.server";
+import { updateServer } from "../commands/update.server";
+import { backupServer } from "../commands/backup.server";
+import { Bot } from "../types/bot";
+import { serverInfo } from "../commands/server.info";
+import { serverSettings } from "../commands/server.settings";
 
 export interface Command extends ChatInputApplicationCommandData {
   ephemeral: boolean;
@@ -29,8 +29,8 @@ export const ApplicationCommands: Command[] = [
   serverSettings,
   startServer,
   // Admin only commands
-  // restartServer,
+  restartServer,
   stopServer,
-  // updateServer,
-  // backupServer,
+  updateServer,
+  backupServer,
 ];

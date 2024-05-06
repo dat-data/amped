@@ -1,66 +1,76 @@
 import {
-  ApplicationCommandType,
-  CommandInteraction,
-  GuildMember,
-  TextChannel,
   APIEmbed,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Channel,
+  ChannelType,
+  Collection,
   Colors,
-  AutocompleteInteraction,
-  ApplicationCommandOptionType,
+  ComponentType,
+  TextChannel,
 } from "discord.js";
-import { Command } from "../commands/commands";
-import { AppState, SettingsReference } from "../types/instance";
+import { AmpService } from "../services/amp.service";
+import { AppState, Instance, SettingsReference } from "../types/instance";
 import { getStatusIcon } from "../util/status";
-import { Bot } from "../types/bot";
 import { convertToSeconds } from "../util/seconds";
 
-export const serverInfo: Command = {
-  name: "server-info",
-  description: "Display info for a server",
-  type: ApplicationCommandType.ChatInput,
-  options: [
-    {
-      name: "servers",
-      type: ApplicationCommandOptionType.String,
-      description: "Select a server for info",
-      autocomplete: true,
-      required: true,
-    },
-  ],
-  ephemeral: false,
-  autocomplete: async (client: Bot, interaction: AutocompleteInteraction) => {
-    const focusedValue = interaction.options.getFocused();
-    const instances = await client.services.ampService?.getInstances();
-    let choices: { name: string; value: string }[] = [];
-    if (instances) {
-      choices = instances
-        .sort((a, b) => a.FriendlyName.localeCompare(b.FriendlyName))
-        .map((v) => {
-          const status = getStatusIcon(v.AppState);
-          return {
-            name: `${v.FriendlyName} [${status}]`,
-            value: v.InstanceID.toString(),
-          };
-        });
+export class ChannelServerService {
+  constructor() {}
+
+  async updateChannelEmbeds(
+    channels: Collection<string, Channel>,
+    amp: AmpService
+  ): Promise<void> {
+    const instances = await amp.getInstances();
+    const textChannels = channels.filter(
+      (c) => c.type === ChannelType.GuildText
+    ) as Collection<string, TextChannel>;
+
+    for (const instance of instances) {
+      const channelServerName = await this.getChannelServerName(
+        instance.ModuleDisplayName
+      );
+      const channel = textChannels.find((c) => c.name === channelServerName);
+
+      if (channel) {
+        const embedContent = await this.getEmbedContent(instance, amp);
+        if (embedContent) {
+          const row = await this.getActionRow(
+            instance.InstanceID,
+            instance.AppState
+          );
+          const messages = (await channel.messages.fetch({ limit: 10 })).filter(
+            (m) => m.author.id === channel.client.user?.id
+          );
+
+          if (messages.size != 0) {
+            messages.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+            await messages.first()?.edit({
+              embeds: [embedContent],
+              components: [row],
+            });
+          } else {
+            await channel.send({
+              embeds: [embedContent],
+              components: [row],
+            });
+          }
+        }
+      }
     }
+  }
 
-    const filtered = choices.filter((choice) =>
-      choice.name.toLowerCase().startsWith(focusedValue)
-    );
-    await interaction.respond(filtered.slice(0, 25));
-  },
-  run: async (client: Bot, interaction: CommandInteraction) => {
-    const member = interaction.member as GuildMember;
-    const channel = interaction.channel as TextChannel;
-    const instanceId = interaction.options.data[0].value as string;
+  private async getChannelServerName(serverName: string): Promise<string> {
+    return serverName.replaceAll(" ", "-").toLowerCase();
+  }
 
-    const instance = await client.services.ampService?.getInstance(instanceId);
-    const serverSettings = await client.services.ampService?.getServerSettings(
-      instanceId
-    );
-    const serverUpdate = await client.services.ampService?.getServerUpdate(
-      instanceId
-    );
+  private async getEmbedContent(
+    instance: Instance,
+    amp: AmpService
+  ): Promise<APIEmbed | undefined> {
+    const serverSettings = await amp.getServerSettings(instance.InstanceID);
+    const serverUpdate = await amp.getServerUpdate(instance.InstanceID);
 
     if (instance && serverSettings) {
       // Handle settings
@@ -102,7 +112,7 @@ export const serverInfo: Command = {
         fields: [],
       };
 
-      const status = serverUpdate!.Status.State;
+      const status = serverUpdate?.Status.State;
       const icon = getStatusIcon(status);
       let statusValue = AppState[status];
       if (icon) statusValue = `${icon} ${statusValue}`;
@@ -115,7 +125,6 @@ export const serverInfo: Command = {
         embed.fields?.push({
           name: `Server Name`,
           value: `${serverName}`,
-          inline: false,
         });
       }
 
@@ -123,7 +132,6 @@ export const serverInfo: Command = {
         embed.fields?.push({
           name: `Server Description`,
           value: `${serverDescription}`,
-          inline: false,
         });
       }
 
@@ -135,17 +143,14 @@ export const serverInfo: Command = {
         {
           name: `Status`,
           value: `${statusValue}`,
-          inline: false,
         },
         {
           name: `Running Since`,
           value: `${uptime}`,
-          inline: false,
         },
         {
           name: `Active Users`,
           value: `${instance.Metrics["Active Users"].RawValue}/${instance.Metrics["Active Users"].MaxValue}`,
-          inline: false,
         },
         // {
         //   name: `** **`,
@@ -154,12 +159,10 @@ export const serverInfo: Command = {
         {
           name: `CPU`,
           value: `${instance.Metrics["CPU Usage"].Percent}%`,
-          inline: false,
         },
         {
           name: `Memory`,
           value: `${instance.Metrics["Memory Usage"].Percent}%`,
-          inline: false,
         },
         // {
         //   name: `** **`,
@@ -168,7 +171,6 @@ export const serverInfo: Command = {
         {
           name: `IP`,
           value: `\`\`\`${ip}\`\`\``,
-          inline: false,
         }
       );
 
@@ -176,7 +178,6 @@ export const serverInfo: Command = {
         embed.fields?.push({
           name: `Password`,
           value: `\`\`\`${password}\`\`\``,
-          inline: false,
         });
       }
 
@@ -185,18 +186,32 @@ export const serverInfo: Command = {
         value: `<t:${Math.floor(new Date().getTime() / 1000)}:R>`,
       });
 
-      await interaction.followUp({
-        embeds: [embed],
-      });
+      return embed;
     }
+  }
 
-    console.log(
-      `Bot command ${interaction.commandName}: used by ${member.displayName} in channel ${channel.name}`
-    );
-
-    await client.services.channelServerService?.updateChannelEmbeds(
-      client.channels.cache,
-      client.services.ampService!
-    );
-  },
-};
+  private async getActionRow(
+    instanceId: string,
+    state: AppState
+  ): Promise<ActionRowBuilder<ButtonBuilder>> {
+    return new ActionRowBuilder<ButtonBuilder>({
+      components: [
+        new ButtonBuilder({
+          type: ComponentType.Button,
+          style: ButtonStyle.Success,
+          label: "Start",
+          customId: `start_${instanceId}`,
+          disabled: state != AppState.Stopped,
+          emoji: "▶️",
+        }),
+        new ButtonBuilder({
+          type: ComponentType.Button,
+          style: ButtonStyle.Primary,
+          label: "Refresh",
+          customId: `refresh_${instanceId}`,
+          emoji: "🔄",
+        }),
+      ],
+    });
+  }
+}

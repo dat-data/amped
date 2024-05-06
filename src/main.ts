@@ -1,9 +1,10 @@
-import { Bot } from "./types/bot.js";
+import { Bot } from "./types/bot";
 import { GatewayIntentBits } from "discord.js";
-import ready from "./listeners/ready.js";
-import interactionCreate from "./listeners/interactionCreate.js";
-import { AmpService } from "./services/amp.service.js";
+import ready from "./listeners/ready";
+import interactionCreate from "./listeners/interactionCreate";
+import { AmpService } from "./services/amp.service";
 import dotenv from "dotenv";
+import { ChannelServerService } from "./services/channel.server.service";
 
 dotenv.config();
 
@@ -24,6 +25,5 @@ client.login(process.env.TOKEN);
 // Services
 client.services = {
   ampService: new AmpService(),
+  channelServerService: new ChannelServerService(),
 };
-
-//TODO - Setup timed events (turn off server)

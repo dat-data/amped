@@ -3,9 +3,11 @@ import {
   Client,
   Interaction,
   AutocompleteInteraction,
+  MessageComponentInteraction,
 } from "discord.js";
 import { ApplicationCommands } from "../commands/commands";
-import { Bot } from "src/types/bot";
+import { Bot } from "../types/bot";
+import { Buttons } from "../buttons/buttons";
 
 export default (client: Bot): void => {
   client.on("interactionCreate", async (interaction: Interaction) => {
@@ -13,6 +15,8 @@ export default (client: Bot): void => {
       await handleSlashCommand(client, interaction);
     } else if (interaction.isAutocomplete()) {
       await handleAutoCompleteInteraction(client, interaction);
+    } else if (interaction.isButton()) {
+      await handleButtonInteraction(client, interaction);
     }
   });
 };
@@ -52,4 +56,21 @@ const handleAutoCompleteInteraction = async (
   }
 
   if (acCommand.autocomplete) await acCommand.autocomplete(client, interaction);
+};
+
+const handleButtonInteraction = async (
+  client: Bot,
+  interaction: MessageComponentInteraction
+): Promise<void> => {
+  const interactionId = interaction.customId.split("_")[0];
+  const buttonInteraction = Buttons.find((b) => b.custom_id === interactionId);
+  if (!buttonInteraction) {
+    interaction.reply({
+      ephemeral: true,
+      content: "Whoa, what were you trying for?",
+    });
+    return;
+  }
+
+  buttonInteraction.run(client, interaction);
 };
