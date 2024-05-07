@@ -68,7 +68,9 @@ export const serverSettings: Command = {
           let content = "";
           if (settingRef) {
             content += `diff\n!${setting}\n`;
-            for (const s of settingRef) {
+            for (const s of settingRef.filter(
+              (s: any) => !s.Name.includes("Admin") && !s.Name.includes("RCON")
+            )) {
               content += `${s.Name}: ${s.CurrentValue}\n`;
               // content += `Description: ${s.Description}\n\n`;
             }

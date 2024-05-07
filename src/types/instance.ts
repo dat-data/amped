@@ -85,6 +85,12 @@ export const SettingsReference: Record<string, ServerSettings> = {
       Password: "Password",
     },
   },
+  "Skyrim Together Reborn": {
+    Settings: ["STR Settings"],
+  },
+  "V Rising": {
+    Settings: ["V Rising - Game Settings", "V Rising - Host Settings"],
+  },
 };
 
 interface ServerSettings {
