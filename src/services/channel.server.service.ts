@@ -28,6 +28,49 @@ export class ChannelServerService {
     ) as Collection<string, TextChannel>;
 
     for (const instance of instances) {
+      const channelServerName = process.env.GAME_SERVERS_CHANNEL!;
+      const channel = textChannels.find((c) => c.name === channelServerName);
+
+      if (channel) {
+        const embedContent = await this.getEmbedContent(instance, amp);
+        if (embedContent) {
+          const row = await this.getActionRow(
+            instance.InstanceID,
+            instance.AppState
+          );
+          const messages = (await channel.messages.fetch({ limit: 25 })).filter(
+            (m) => m.author.id === channel.client.user?.id
+          );
+          const message = messages.find(
+            (m) => m.embeds[0].title === instance.FriendlyName
+          );
+          if (message) {
+            await message.edit({
+              embeds: [embedContent],
+              components: [row],
+            });
+          } else {
+            await channel.send({
+              embeds: [embedContent],
+              components: [row],
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // @deprecated
+  async updateChannelSpecificEmbeds(
+    channels: Collection<string, Channel>,
+    amp: AmpService
+  ): Promise<void> {
+    const instances = await amp.getInstances();
+    const textChannels = channels.filter(
+      (c) => c.type === ChannelType.GuildText
+    ) as Collection<string, TextChannel>;
+
+    for (const instance of instances) {
       const channelServerName = await this.getChannelServerName(
         instance.ModuleDisplayName
       );
@@ -124,7 +167,7 @@ export class ChannelServerService {
       if (serverName) {
         embed.fields?.push({
           name: `Server Name`,
-          value: `${serverName}`,
+          value: `\`\`\`${serverName}\`\`\``,
         });
       }
 

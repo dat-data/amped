@@ -114,7 +114,7 @@ export const serverInfo: Command = {
       if (serverName) {
         embed.fields?.push({
           name: `Server Name`,
-          value: `${serverName}`,
+          value: `\`\`\`${serverName}\`\`\``,
           inline: false,
         });
       }

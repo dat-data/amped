@@ -89,7 +89,26 @@ export const SettingsReference: Record<string, ServerSettings> = {
     Settings: ["STR Settings"],
   },
   "V Rising": {
-    Settings: ["V Rising - Game Settings", "V Rising - Host Settings"],
+    Settings: ["V Rising - Game Settings"],
+    Connection: {
+      Settings: "V Rising - Host Settings",
+      ServerName: "Server Name",
+      ServerDescription: "Description",
+      Password: "Password",
+    },
+  },
+  "ARK: Survival Ascended": {
+    Settings: [
+      "ARK Gameplay Settings",
+      "ARK Multiplier Settings",
+      "ARK Structure Settings",
+    ],
+    Connection: {
+      Settings: "ARK Server Settings",
+      ServerName: "Server Name",
+      ServerDescription: "MOTD",
+      Password: "Server Password",
+    },
   },
 };
 
