@@ -137,7 +137,9 @@ export class ChannelServerService {
       }
 
       let uptime = "00:00";
-      if (
+      if (serverUpdate && serverUpdate.Title == "Instance Unavailable") {
+        uptime = `Instance Unavailable`;
+      } else if (
         serverUpdate &&
         serverUpdate.Status.State == AppState.Ready &&
         serverUpdate?.Status.Uptime
@@ -155,7 +157,10 @@ export class ChannelServerService {
         fields: [],
       };
 
-      const status = serverUpdate?.Status.State;
+      const status =
+        serverUpdate?.Status != undefined
+          ? serverUpdate?.Status.State
+          : AppState.Stopped;
       const icon = getStatusIcon(status);
       let statusValue = AppState[status];
       if (icon) statusValue = `${icon} ${statusValue}`;
@@ -178,6 +183,23 @@ export class ChannelServerService {
         });
       }
 
+      const activeUsersRaw =
+        instance.Metrics["Active Users"] != undefined
+          ? instance.Metrics["Active Users"].RawValue
+          : 0;
+      const activeUsersMax =
+        instance.Metrics["Active Users"] != undefined
+          ? instance.Metrics["Active Users"].MaxValue
+          : 0;
+      const cpuUsage =
+        instance.Metrics["CPU Usage"] != undefined
+          ? instance.Metrics["CPU Usage"].Percent
+          : 0;
+      const memoryUsage =
+        instance.Metrics["Memory Usage"] != undefined
+          ? instance.Metrics["Memory Usage"].Percent
+          : 0;
+
       embed.fields?.push(
         // {
         //   name: `** **`,
@@ -193,7 +215,7 @@ export class ChannelServerService {
         },
         {
           name: `Active Users`,
-          value: `${instance.Metrics["Active Users"].RawValue}/${instance.Metrics["Active Users"].MaxValue}`,
+          value: `${activeUsersRaw}/${activeUsersMax}`,
         },
         // {
         //   name: `** **`,
@@ -201,11 +223,11 @@ export class ChannelServerService {
         // },
         {
           name: `CPU`,
-          value: `${instance.Metrics["CPU Usage"].Percent}%`,
+          value: `${cpuUsage}%`,
         },
         {
           name: `Memory`,
-          value: `${instance.Metrics["Memory Usage"].Percent}%`,
+          value: `${memoryUsage}%`,
         },
         // {
         //   name: `** **`,

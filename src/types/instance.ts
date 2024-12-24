@@ -63,7 +63,7 @@ export const SettingsReference: Record<string, ServerSettings> = {
   Palworld: {
     Settings: ["Palworld Gameplay Settings", "Palworld Multiplier Settings"],
     Connection: {
-      Settings: "Palworld Server Settings",
+      Settings: "Palworld:stadia_controller",
       ServerName: "Server Name",
       ServerDescription: "Server Description",
       Password: "Server Password",
@@ -125,6 +125,7 @@ interface ServerSettings {
 }
 
 export interface ServerUpdate {
+  Title: string;
   Status: {
     State: AppState;
     Uptime: string;

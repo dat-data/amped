@@ -27,3 +27,11 @@ client.services = {
   ampService: new AmpService(),
   channelServerService: new ChannelServerService(),
 };
+
+// Initial instance update
+setTimeout(async () => {
+  await client.services.channelServerService?.updateChannelEmbeds(
+    client.channels.cache,
+    client.services.ampService!
+  );
+}, 5000);
